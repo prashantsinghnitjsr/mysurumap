@@ -1,0 +1,758 @@
+<!doctype html>
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <meta name="viewport" content="initial-scale=1,user-scalable=no,maximum-scale=1,width=device-width">
+        <meta name="mobile-web-app-capable" content="yes">
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <link rel="stylesheet" href="css/leaflet.css">
+        <link rel="stylesheet" href="css/L.Control.Layers.Tree.css">
+        <link rel="stylesheet" href="css/qgis2web.css">
+        <link rel="stylesheet" href="css/fontawesome-all.min.css">
+        <style>
+        html, body, #map {
+            width: 100%;
+            height: 100%;
+            padding: 0;
+            margin: 0;
+        }
+        </style>
+        <title></title>
+    </head>
+    <body>
+        <div id="map">
+        </div>
+        <script src="js/qgis2web_expressions.js"></script>
+        <script src="js/leaflet.js"></script>
+        <script src="js/L.Control.Layers.Tree.min.js"></script>
+        <script src="js/multi-style-layer.js"></script>
+        <script src="js/leaflet-svg-shape-markers.min.js"></script>
+        <script src="js/leaflet.rotatedMarker.js"></script>
+        <script src="js/leaflet.pattern.js"></script>
+        <script src="js/leaflet-hash.js"></script>
+        <script src="js/Autolinker.min.js"></script>
+        <script src="js/rbush.min.js"></script>
+        <script src="js/labelgun.min.js"></script>
+        <script src="js/labels.js"></script>
+        <script src="data/doctors_6.js"></script>
+        <script src="data/ApolloPharmac_7.js"></script>
+        <script src="data/MedplusPharmacy_8.js"></script>
+        <script src="data/OtherPharmacy_9.js"></script>
+        <script src="data/Hospitals_10.js"></script>
+        <script src="data/Isochrones_11.js"></script>
+        <script src="data/FinalLocation_12.js"></script>
+        <script src="data/MysoreCity_13.js"></script>
+        <script>
+        var map = L.map('map', {
+            zoomControl:false, maxZoom:28, minZoom:1
+        }).fitBounds([[12.246927957279212,76.51085509242633],[12.378699150964763,76.76011553037957]]);
+        var hash = new L.Hash(map);
+        map.attributionControl.setPrefix('<a href="https://github.com/tomchadwin/qgis2web" target="_blank">qgis2web</a> &middot; <a href="https://leafletjs.com" title="A JS library for interactive maps">Leaflet</a> &middot; <a href="https://qgis.org">QGIS</a>');
+        var autolinker = new Autolinker({truncate: {length: 30, location: 'smart'}});
+        // remove popup's row if "visible-with-data"
+        function removeEmptyRowsFromPopupContent(content, feature) {
+         var tempDiv = document.createElement('div');
+         tempDiv.innerHTML = content;
+         var rows = tempDiv.querySelectorAll('tr');
+         for (var i = 0; i < rows.length; i++) {
+             var td = rows[i].querySelector('td.visible-with-data');
+             var key = td ? td.id : '';
+             if (td && td.classList.contains('visible-with-data') && feature.properties[key] == null) {
+                 rows[i].parentNode.removeChild(rows[i]);
+             }
+         }
+         return tempDiv.innerHTML;
+        }
+        // add class to format popup if it contains media
+		function addClassToPopupIfMedia(content, popup) {
+			var tempDiv = document.createElement('div');
+			tempDiv.innerHTML = content;
+			if (tempDiv.querySelector('td img')) {
+				popup._contentNode.classList.add('media');
+					// Delay to force the redraw
+					setTimeout(function() {
+						popup.update();
+					}, 10);
+			} else {
+				popup._contentNode.classList.remove('media');
+			}
+		}
+        var zoomControl = L.control.zoom({
+            position: 'topleft'
+        }).addTo(map);
+        var bounds_group = new L.featureGroup([]);
+        function setBounds() {
+        }
+        map.createPane('pane_OSMStandard_0');
+        map.getPane('pane_OSMStandard_0').style.zIndex = 400;
+        var layer_OSMStandard_0 = L.tileLayer('http://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            pane: 'pane_OSMStandard_0',
+            opacity: 1.0,
+            attribution: '<a href="https://www.openstreetmap.org/copyright">© OpenStreetMap contributors, CC-BY-SA</a>',
+            minZoom: 1,
+            maxZoom: 28,
+            minNativeZoom: 0,
+            maxNativeZoom: 19
+        });
+        layer_OSMStandard_0;
+        map.addLayer(layer_OSMStandard_0);
+        map.createPane('pane_mysurucity2023_1');
+        map.getPane('pane_mysurucity2023_1').style.zIndex = 401;
+        var img_mysurucity2023_1 = 'data/mysurucity2023_1.png';
+        var img_bounds_mysurucity2023_1 = [[12.221866595268366,76.57389031996284],[12.39791292149595,76.73255376663818]];
+        var layer_mysurucity2023_1 = new L.imageOverlay(img_mysurucity2023_1,
+                                              img_bounds_mysurucity2023_1,
+                                              {pane: 'pane_mysurucity2023_1'});
+        bounds_group.addLayer(layer_mysurucity2023_1);
+        map.addLayer(layer_mysurucity2023_1);
+        map.createPane('pane_MysuruChange2017to2023_v3_2');
+        map.getPane('pane_MysuruChange2017to2023_v3_2').style.zIndex = 402;
+        var img_MysuruChange2017to2023_v3_2 = 'data/MysuruChange2017to2023_v3_2.png';
+        var img_bounds_MysuruChange2017to2023_v3_2 = [[7.989126599056742,71.91002820861296],[16.020894595128656,78.08997179138709]];
+        var layer_MysuruChange2017to2023_v3_2 = new L.imageOverlay(img_MysuruChange2017to2023_v3_2,
+                                              img_bounds_MysuruChange2017to2023_v3_2,
+                                              {pane: 'pane_MysuruChange2017to2023_v3_2'});
+        bounds_group.addLayer(layer_MysuruChange2017to2023_v3_2);
+        map.addLayer(layer_MysuruChange2017to2023_v3_2);
+        map.createPane('pane_MysuruCity2017_v1_3');
+        map.getPane('pane_MysuruCity2017_v1_3').style.zIndex = 403;
+        var img_MysuruCity2017_v1_3 = 'data/MysuruCity2017_v1_3.png';
+        var img_bounds_MysuruCity2017_v1_3 = [[12.221866595268366,76.57389031996284],[12.39791292149595,76.73255376663818]];
+        var layer_MysuruCity2017_v1_3 = new L.imageOverlay(img_MysuruCity2017_v1_3,
+                                              img_bounds_MysuruCity2017_v1_3,
+                                              {pane: 'pane_MysuruCity2017_v1_3'});
+        bounds_group.addLayer(layer_MysuruCity2017_v1_3);
+        map.addLayer(layer_MysuruCity2017_v1_3);
+        map.createPane('pane_Mysuru_City_NightLight_4');
+        map.getPane('pane_Mysuru_City_NightLight_4').style.zIndex = 404;
+        var img_Mysuru_City_NightLight_4 = 'data/Mysuru_City_NightLight_4.png';
+        var img_bounds_Mysuru_City_NightLight_4 = [[12.222916164449998,76.57708346595],[12.393749499149997,76.73125013385]];
+        var layer_Mysuru_City_NightLight_4 = new L.imageOverlay(img_Mysuru_City_NightLight_4,
+                                              img_bounds_Mysuru_City_NightLight_4,
+                                              {pane: 'pane_Mysuru_City_NightLight_4'});
+        bounds_group.addLayer(layer_Mysuru_City_NightLight_4);
+        map.addLayer(layer_Mysuru_City_NightLight_4);
+        map.createPane('pane_Mysuru_Population_density_5');
+        map.getPane('pane_Mysuru_Population_density_5').style.zIndex = 405;
+        var img_Mysuru_Population_density_5 = 'data/Mysuru_Population_density_5.png';
+        var img_bounds_Mysuru_Population_density_5 = [[12.224583477428162,76.58208303457596],[12.391250143428163,76.72374970067595]];
+        var layer_Mysuru_Population_density_5 = new L.imageOverlay(img_Mysuru_Population_density_5,
+                                              img_bounds_Mysuru_Population_density_5,
+                                              {pane: 'pane_Mysuru_Population_density_5'});
+        bounds_group.addLayer(layer_Mysuru_Population_density_5);
+        map.addLayer(layer_Mysuru_Population_density_5);
+        function pop_doctors_6(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Name</th>\
+                        <td class="visible-with-data" id="Name">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Address</th>\
+                        <td class="visible-with-data" id="Address">' + (feature.properties['Address'] !== null ? autolinker.link(feature.properties['Address'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Latitude'] !== null ? autolinker.link(feature.properties['Latitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Longitude'] !== null ? autolinker.link(feature.properties['Longitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_doctors_6_0() {
+            return {
+                pane: 'pane_doctors_6',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(183,72,75,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_doctors_6');
+        map.getPane('pane_doctors_6').style.zIndex = 406;
+        map.getPane('pane_doctors_6').style['mix-blend-mode'] = 'normal';
+        var layer_doctors_6 = new L.geoJson(json_doctors_6, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_doctors_6',
+            layerName: 'layer_doctors_6',
+            pane: 'pane_doctors_6',
+            onEachFeature: pop_doctors_6,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_doctors_6_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_doctors_6);
+        map.addLayer(layer_doctors_6);
+        function pop_ApolloPharmac_7(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Name</th>\
+                        <td class="visible-with-data" id="Name">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Address'] !== null ? autolinker.link(feature.properties['Address'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Latitude'] !== null ? autolinker.link(feature.properties['Latitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Longitude'] !== null ? autolinker.link(feature.properties['Longitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_ApolloPharmac_7_0() {
+            return {
+                pane: 'pane_ApolloPharmac_7',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(35,244,3,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_ApolloPharmac_7');
+        map.getPane('pane_ApolloPharmac_7').style.zIndex = 407;
+        map.getPane('pane_ApolloPharmac_7').style['mix-blend-mode'] = 'normal';
+        var layer_ApolloPharmac_7 = new L.geoJson(json_ApolloPharmac_7, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_ApolloPharmac_7',
+            layerName: 'layer_ApolloPharmac_7',
+            pane: 'pane_ApolloPharmac_7',
+            onEachFeature: pop_ApolloPharmac_7,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_ApolloPharmac_7_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_ApolloPharmac_7);
+        map.addLayer(layer_ApolloPharmac_7);
+        function pop_MedplusPharmacy_8(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Name</th>\
+                        <td class="visible-with-data" id="Name">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Address'] !== null ? autolinker.link(feature.properties['Address'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Latitude'] !== null ? autolinker.link(feature.properties['Latitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Longitude'] !== null ? autolinker.link(feature.properties['Longitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_MedplusPharmacy_8_0() {
+            return {
+                pane: 'pane_MedplusPharmacy_8',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(227,26,28,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_MedplusPharmacy_8');
+        map.getPane('pane_MedplusPharmacy_8').style.zIndex = 408;
+        map.getPane('pane_MedplusPharmacy_8').style['mix-blend-mode'] = 'normal';
+        var layer_MedplusPharmacy_8 = new L.geoJson(json_MedplusPharmacy_8, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_MedplusPharmacy_8',
+            layerName: 'layer_MedplusPharmacy_8',
+            pane: 'pane_MedplusPharmacy_8',
+            onEachFeature: pop_MedplusPharmacy_8,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_MedplusPharmacy_8_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_MedplusPharmacy_8);
+        map.addLayer(layer_MedplusPharmacy_8);
+        function pop_OtherPharmacy_9(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Name</th>\
+                        <td class="visible-with-data" id="Name">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Address'] !== null ? autolinker.link(feature.properties['Address'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Latitude'] !== null ? autolinker.link(feature.properties['Latitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Longitude'] !== null ? autolinker.link(feature.properties['Longitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_OtherPharmacy_9_0() {
+            return {
+                pane: 'pane_OtherPharmacy_9',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(238,245,25,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_OtherPharmacy_9');
+        map.getPane('pane_OtherPharmacy_9').style.zIndex = 409;
+        map.getPane('pane_OtherPharmacy_9').style['mix-blend-mode'] = 'normal';
+        var layer_OtherPharmacy_9 = new L.geoJson(json_OtherPharmacy_9, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_OtherPharmacy_9',
+            layerName: 'layer_OtherPharmacy_9',
+            pane: 'pane_OtherPharmacy_9',
+            onEachFeature: pop_OtherPharmacy_9,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.circleMarker(latlng, style_OtherPharmacy_9_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_OtherPharmacy_9);
+        map.addLayer(layer_OtherPharmacy_9);
+        function pop_Hospitals_10(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">Name</th>\
+                        <td>' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">Address</th>\
+                        <td>' + (feature.properties['Address'] !== null ? autolinker.link(feature.properties['Address'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Latitude'] !== null ? autolinker.link(feature.properties['Latitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Longitude'] !== null ? autolinker.link(feature.properties['Longitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Hospitals_10_0() {
+            return {
+                pane: 'pane_Hospitals_10',
+                radius: 4.0,
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(51,160,44,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_Hospitals_10');
+        map.getPane('pane_Hospitals_10').style.zIndex = 410;
+        map.getPane('pane_Hospitals_10').style['mix-blend-mode'] = 'normal';
+        var layer_Hospitals_10 = new L.geoJson(json_Hospitals_10, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Hospitals_10',
+            layerName: 'layer_Hospitals_10',
+            pane: 'pane_Hospitals_10',
+            onEachFeature: pop_Hospitals_10,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_Hospitals_10_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_Hospitals_10);
+        map.addLayer(layer_Hospitals_10);
+        function pop_Isochrones_11(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">ID</th>\
+                        <td class="visible-with-data" id="ID">' + (feature.properties['ID'] !== null ? autolinker.link(feature.properties['ID'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CENTER_LON'] !== null ? autolinker.link(feature.properties['CENTER_LON'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CENTER_LAT'] !== null ? autolinker.link(feature.properties['CENTER_LAT'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AA_MINS'] !== null ? autolinker.link(feature.properties['AA_MINS'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['AA_MODE'] !== null ? autolinker.link(feature.properties['AA_MODE'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['TOTAL_POP'] !== null ? autolinker.link(feature.properties['TOTAL_POP'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_Isochrones_11_0(feature) {
+            switch(String(feature.properties['AA_MINS'])) {
+                case '5':
+                    return {
+                pane: 'pane_Isochrones_11',
+                interactive: true,
+            }
+                    break;
+                case '10':
+                    return {
+                pane: 'pane_Isochrones_11',
+                interactive: true,
+            }
+                    break;
+                case '15':
+                    return {
+                pane: 'pane_Isochrones_11',
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        function style_Isochrones_11_1(feature) {
+            switch(String(feature.properties['AA_MINS'])) {
+                case '5':
+                    return {
+                pane: 'pane_Isochrones_11',
+                opacity: 1,
+                color: 'rgba(56,128,54,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case '10':
+                    return {
+                pane: 'pane_Isochrones_11',
+                opacity: 1,
+                color: 'rgba(128,62,0,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+                case '15':
+                    return {
+                pane: 'pane_Isochrones_11',
+                opacity: 1,
+                color: 'rgba(119,61,128,0.5)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fillOpacity: 0,
+                interactive: true,
+            }
+                    break;
+            }
+        }
+        map.createPane('pane_Isochrones_11');
+        map.getPane('pane_Isochrones_11').style.zIndex = 411;
+        map.getPane('pane_Isochrones_11').style['mix-blend-mode'] = 'normal';
+        var layer_Isochrones_11 = new L.geoJson.multiStyle(json_Isochrones_11, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_Isochrones_11',
+            layerName: 'layer_Isochrones_11',
+            pane: 'pane_Isochrones_11',
+            onEachFeature: pop_Isochrones_11,
+            styles: [style_Isochrones_11_0,style_Isochrones_11_1,]
+        });
+        bounds_group.addLayer(layer_Isochrones_11);
+        map.addLayer(layer_Isochrones_11);
+        function pop_FinalLocation_12(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Name'] !== null ? autolinker.link(feature.properties['Name'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Latitude'] !== null ? autolinker.link(feature.properties['Latitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Longitude'] !== null ? autolinker.link(feature.properties['Longitude'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_FinalLocation_12_0() {
+            return {
+                pane: 'pane_FinalLocation_12',
+                shape: 'diamond',
+                radius: 5.200000000000001,
+                opacity: 1,
+                color: 'rgba(61,128,53,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 2.0,
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(0,0,0,1.0)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_FinalLocation_12');
+        map.getPane('pane_FinalLocation_12').style.zIndex = 412;
+        map.getPane('pane_FinalLocation_12').style['mix-blend-mode'] = 'normal';
+        var layer_FinalLocation_12 = new L.geoJson(json_FinalLocation_12, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_FinalLocation_12',
+            layerName: 'layer_FinalLocation_12',
+            pane: 'pane_FinalLocation_12',
+            onEachFeature: pop_FinalLocation_12,
+            pointToLayer: function (feature, latlng) {
+                var context = {
+                    feature: feature,
+                    variables: {}
+                };
+                return L.shapeMarker(latlng, style_FinalLocation_12_0(feature));
+            },
+        });
+        bounds_group.addLayer(layer_FinalLocation_12);
+        map.addLayer(layer_FinalLocation_12);
+        function pop_MysoreCity_13(feature, layer) {
+            var popupContent = '<table>\
+                    <tr>\
+                        <th scope="row">KGISVillag</th>\
+                        <td class="visible-with-data" id="KGISVillag">' + (feature.properties['KGISVillag'] !== null ? autolinker.link(feature.properties['KGISVillag'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KGISVill_1'] !== null ? autolinker.link(feature.properties['KGISVill_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['KGISVill_2'] !== null ? autolinker.link(feature.properties['KGISVill_2'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <th scope="row">KGISHobliI</th>\
+                        <td class="visible-with-data" id="KGISHobliI">' + (feature.properties['KGISHobliI'] !== null ? autolinker.link(feature.properties['KGISHobliI'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['UniqueVill'] !== null ? autolinker.link(feature.properties['UniqueVill'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Bhucode'] !== null ? autolinker.link(feature.properties['Bhucode'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['CensusVill'] !== null ? autolinker.link(feature.properties['CensusVill'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['BhoomiVill'] !== null ? autolinker.link(feature.properties['BhoomiVill'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['created_us'] !== null ? autolinker.link(feature.properties['created_us'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['created_da'] !== null ? autolinker.link(feature.properties['created_da'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['last_edite'] !== null ? autolinker.link(feature.properties['last_edite'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['last_edi_1'] !== null ? autolinker.link(feature.properties['last_edi_1'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LGDGPCode'] !== null ? autolinker.link(feature.properties['LGDGPCode'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LGDGPCode_'] !== null ? autolinker.link(feature.properties['LGDGPCode_'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['Category'] !== null ? autolinker.link(feature.properties['Category'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['LGD_Villag'] !== null ? autolinker.link(feature.properties['LGD_Villag'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_STAr'] !== null ? autolinker.link(feature.properties['SHAPE_STAr'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                    <tr>\
+                        <td colspan="2">' + (feature.properties['SHAPE_STLe'] !== null ? autolinker.link(feature.properties['SHAPE_STLe'].toLocaleString()) : '') + '</td>\
+                    </tr>\
+                </table>';
+            var content = removeEmptyRowsFromPopupContent(popupContent, feature);
+			layer.on('popupopen', function(e) {
+				addClassToPopupIfMedia(content, e.popup);
+			});
+			layer.bindPopup(content, { maxHeight: 400 });
+        }
+
+        function style_MysoreCity_13_0() {
+            return {
+                pane: 'pane_MysoreCity_13',
+                opacity: 1,
+                color: 'rgba(35,35,35,1.0)',
+                dashArray: '',
+                lineCap: 'butt',
+                lineJoin: 'miter',
+                weight: 1.0, 
+                fill: true,
+                fillOpacity: 1,
+                fillColor: 'rgba(232,244,12,0.023529411764705882)',
+                interactive: true,
+            }
+        }
+        map.createPane('pane_MysoreCity_13');
+        map.getPane('pane_MysoreCity_13').style.zIndex = 413;
+        map.getPane('pane_MysoreCity_13').style['mix-blend-mode'] = 'normal';
+        var layer_MysoreCity_13 = new L.geoJson(json_MysoreCity_13, {
+            attribution: '',
+            interactive: true,
+            dataVar: 'json_MysoreCity_13',
+            layerName: 'layer_MysoreCity_13',
+            pane: 'pane_MysoreCity_13',
+            onEachFeature: pop_MysoreCity_13,
+            style: style_MysoreCity_13_0,
+        });
+        bounds_group.addLayer(layer_MysoreCity_13);
+        map.addLayer(layer_MysoreCity_13);
+        var baseMaps = {};
+        var overlaysTree = [
+            {label: '<img src="legend/MysoreCity_13.png" /> Mysore City', layer: layer_MysoreCity_13},
+            {label: '<img src="legend/FinalLocation_12.png" /> Final Location', layer: layer_FinalLocation_12},
+            {label: 'Isochrones<br /><table><tr><td style="text-align: center;"><img src="legend/Isochrones_11_5min0.png" /></td><td>5 min</td></tr><tr><td style="text-align: center;"><img src="legend/Isochrones_11_10min1.png" /></td><td>10 min</td></tr><tr><td style="text-align: center;"><img src="legend/Isochrones_11_15min2.png" /></td><td>15 min</td></tr></table>', layer: layer_Isochrones_11},
+            {label: '<img src="legend/Hospitals_10.png" /> Hospitals', layer: layer_Hospitals_10},
+            {label: '<img src="legend/OtherPharmacy_9.png" /> Other Pharmacy', layer: layer_OtherPharmacy_9},
+            {label: '<img src="legend/MedplusPharmacy_8.png" /> Medplus Pharmacy', layer: layer_MedplusPharmacy_8},
+            {label: '<img src="legend/ApolloPharmac_7.png" /> Apollo Pharmac', layer: layer_ApolloPharmac_7},
+            {label: '<img src="legend/doctors_6.png" /> doctors', layer: layer_doctors_6},
+            {label: "Mysuru_Population_density", layer: layer_Mysuru_Population_density_5},
+            {label: "Mysuru_City_NightLight", layer: layer_Mysuru_City_NightLight_4},
+            {label: "Mysuru City 2017_v1", layer: layer_MysuruCity2017_v1_3},
+            {label: "Mysuru Change 2017 to 2023_v3", layer: layer_MysuruChange2017to2023_v3_2},
+            {label: "mysuru city 2023", layer: layer_mysurucity2023_1},
+            {label: "OSM Standard", layer: layer_OSMStandard_0},]
+        var lay = L.control.layers.tree(null, overlaysTree,{
+            //namedToggle: true,
+            //selectorBack: false,
+            //closedSymbol: '&#8862; &#x1f5c0;',
+            //openedSymbol: '&#8863; &#x1f5c1;',
+            //collapseAll: 'Collapse all',
+            //expandAll: 'Expand all',
+            collapsed: false, 
+        });
+        lay.addTo(map);
+        setBounds();
+        var i = 0;
+        layer_MysoreCity_13.eachLayer(function(layer) {
+            var context = {
+                feature: layer.feature,
+                variables: {}
+            };
+            layer.bindTooltip((layer.feature.properties['KGISVill_2'] !== null?String('<div style="color: #323232; font-size: 6pt; font-family: \'Arial\', sans-serif;">' + layer.feature.properties['KGISVill_2']) + '</div>':''), {permanent: true, offset: [-0, -16], className: 'css_MysoreCity_13'});
+            labels.push(layer);
+            totalMarkers += 1;
+              layer.added = true;
+              addLabel(layer, i);
+              i++;
+        });
+        L.ImageOverlay.include({
+            getBounds: function () {
+                return this._bounds;
+            }
+        });
+        resetLabels([layer_MysoreCity_13]);
+        map.on("zoomend", function(){
+            resetLabels([layer_MysoreCity_13]);
+        });
+        map.on("layeradd", function(){
+            resetLabels([layer_MysoreCity_13]);
+        });
+        map.on("layerremove", function(){
+            resetLabels([layer_MysoreCity_13]);
+        });
+        </script>
+    </body>
+</html>
